@@ -1,16 +1,25 @@
 /* @flow */
 import type { FlowType, FlowTypes } from "./types";
 
-function flowTypeAnnotationToString(type: TypeTypeAnnotation, nullable: boolean, fieldName?: string): FlowType {
+function flowTypeAnnotationToString(type: TypeTypeAnnotation, nullable: boolean, fieldName?: string, variables?: Object): FlowType {
   switch (type.type) {
     case "BooleanTypeAnnotation":
-      return { type: "boolean", nullable, fieldName };
+      return { type: "boolean", nullable, fieldName, variables };
     case "NumberTypeAnnotation":
-      return { type: "number", nullable, fieldName };
+      return { type: "number", nullable, fieldName, variables };
     case "StringTypeAnnotation":
-      return { type: "string", nullable, fieldName };
+      return { type: "string", nullable, fieldName, variables };
+    case "StringLiteralTypeAnnotation":
+    case "BooleanLiteralTypeAnnotation":
+    case "NumericLiteralTypeAnnotation":
+      return {
+        type: "literal",
+        nullable,
+        variables,
+        value: typeof type.value === "string" ? type.value.replace(/'/g, "\"") : type.value
+      };
     default:
-      return { type: "any", nullable, fieldName };
+      return { type: "any", nullable, fieldName, variables };
   }
 }
 
@@ -34,19 +43,34 @@ function convertFlowObjectTypeAnnotation(
   }, {});
 }
 
+function convertFunctionTypeAnnotation(
+  objectType: FunctionTypeAnnotation,
+  flowTypes: { [name: string ]: ObjectTypeAnnotation },
+): FlowTypes {
+  return objectType.params.reduce((obj, param) => {
+    const key = param.name.name;
+
+    return {
+      ...obj,
+      [key]: convertTypeAnnotationToFlowType(param.typeAnnotation, param.optional, flowTypes)
+    };
+  }, {});
+}
+
 export function convertTypeAnnotationToFlowType(
   value: TypeTypeAnnotation,
   nullable: boolean,
   flowTypes: { [name: string ]: ObjectTypeAnnotation },
-  fieldName?: string
+  fieldName?: string,
+  variables?: Object
 ): FlowType {
   if (value.type === "NullableTypeAnnotation") {
-    return convertTypeAnnotationToFlowType(value.typeAnnotation, true, flowTypes, fieldName);
+    return convertTypeAnnotationToFlowType(value.typeAnnotation, true, flowTypes, fieldName, variables);
   }
 
   if (value.type === "GenericTypeAnnotation") {
     if (flowTypes[value.id.name]) {
-      return convertTypeAnnotationToFlowType(flowTypes[value.id.name], nullable, flowTypes, fieldName);
+      return convertTypeAnnotationToFlowType(flowTypes[value.id.name], nullable, flowTypes, fieldName, variables);
     }
 
     if (value.typeParameters) {
@@ -54,6 +78,12 @@ export function convertTypeAnnotationToFlowType(
         const [fieldNameType, type] = value.typeParameters.params;
 
         return convertTypeAnnotationToFlowType(type, nullable, flowTypes, fieldNameType.value);
+      }
+
+      if (value.id.name === "PropertyWithArgs") {
+        const prop = value.typeParameters.params[0];
+
+        return convertTypeAnnotationToFlowType(prop.returnType, nullable, flowTypes, convertFunctionTypeAnnotation(prop, flowTypes));
       }
     }
   }
@@ -63,16 +93,16 @@ export function convertTypeAnnotationToFlowType(
       fieldName,
       type: "object",
       nullable,
-      properties: convertFlowObjectTypeAnnotation(value, flowTypes)
+      properties: convertFlowObjectTypeAnnotation(value, flowTypes, fieldName, variables)
     };
   }
 
   if (value.type === "ArrayTypeAnnotation") {
     return {
       type: "array",
-      child: convertTypeAnnotationToFlowType(value.elementType, nullable, flowTypes, fieldName)
+      child: convertTypeAnnotationToFlowType(value.elementType, nullable, flowTypes, fieldName, variables)
     };
   }
 
-  return flowTypeAnnotationToString(value, nullable, fieldName);
+  return flowTypeAnnotationToString(value, nullable, fieldName, variables);
 }

@@ -209,6 +209,21 @@ export function toGraphQLQueryString(
 
 function flowTypeToGraphQLString(flowType: FlowType, level: number = 1): string {
   const fieldName = flowType.fieldName ? `: ${flowType.fieldName}` : "";
+  let args = "";
+
+  if (flowType.variables) {
+    const typeVariables = flowType.variables;
+    const variables = Object.keys(typeVariables).reduce((propArgs, variable) => {
+      const value = typeVariables[variable];
+
+      return [
+        ...propArgs,
+        `${variable}: ${value.value}`
+      ];
+    }, []);
+
+    args = `(${variables.join(", ")})`;
+  }
 
   if (flowType.type === "object") {
     const indentation = "  ".repeat(level);
@@ -216,7 +231,7 @@ function flowTypeToGraphQLString(flowType: FlowType, level: number = 1): string 
     const props = flowType.properties;
     const strings = Object.keys(props).reduce((parts, key) => {
       const value = props[key];
-      parts.push(`${indentation}${key}${flowTypeToGraphQLString(value, level + 1)}`);
+      parts.push(`${indentation}${key}${args}${flowTypeToGraphQLString(value, level + 1)}`);
       return parts;
     }, []);
 
@@ -225,7 +240,7 @@ function flowTypeToGraphQLString(flowType: FlowType, level: number = 1): string 
     return flowTypeToGraphQLString(flowType.child, level);
   }
 
-  return fieldName;
+  return `${fieldName}${args}`;
 }
 
 function directivesToGraphQLString(directives: Object): string {

@@ -1,2 +1,5 @@
 /* @flow */
 export type AliasFor<N: string, V: *> = V // eslint-disable-line no-unused-vars
+type _ExtractReturn<B, F: (...args: any[]) => B> = B; // eslint-disable-line no-unused-vars
+
+export type PropertyWithArgs<F> = _ExtractReturn<any, F>;

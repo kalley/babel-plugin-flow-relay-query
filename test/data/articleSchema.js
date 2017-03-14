@@ -43,7 +43,13 @@ articleType = new GraphQLObjectType({
     views: { type: new GraphQLNonNull(GraphQLInt) },
     sponsored: { type: new GraphQLNonNull(GraphQLBoolean) },
     author: { type: new GraphQLNonNull(authorType) },
-    tags: { type: new GraphQLList(GraphQLString) }
+    tags: {
+      type: new GraphQLList(GraphQLString),
+      args: {
+        category: { type: GraphQLString },
+        first: { type: GraphQLInt }
+      }
+    }
   })
 });
 

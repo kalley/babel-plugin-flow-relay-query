@@ -102,7 +102,11 @@ type TypeTypeAnnotation =
   StringTypeAnnotation |
   ArrayTypeAnnotation |
   ObjectTypeAnnotation |
-  GenericTypeAnnotation;
+  FunctionTypeAnnotation |
+  GenericTypeAnnotation |
+  NumericLiteralTypeAnnotation |
+  BooleanLiteralTypeAnnotation |
+  StringLiteralTypeAnnotation;
 
 type BooleanTypeAnnotation = {
   type: "BooleanTypeAnnotation";
@@ -137,6 +141,33 @@ type VoidTypeAnnotation = {
   type: "VoidTypeAnnotation";
 }
 
+type FunctionTypeAnnotation = {
+  type: "FunctionTypeAnnotation";
+  params: FunctionTypeParam[];
+}
+
+type FunctionTypeParam = {
+  type: "FunctionTypeParam";
+  name: Identifier;
+  optional: boolean;
+  typeAnnotation: TypeTypeAnnotation;
+}
+
+type NumericLiteralTypeAnnotation = {
+  type: "NumericLiteralTypeAnnotation";
+  value: number;
+}
+
+type BooleanLiteralTypeAnnotation = {
+  type: "BooleanLiteralTypeAnnotation";
+  value: boolean;
+}
+
+type StringLiteralTypeAnnotation = {
+  type: "StringLiteralTypeAnnotation";
+  value: string;
+}
+
 
 type ClassProperty = {
   type: "ClassProperty";
@@ -159,7 +190,7 @@ type ClassBody = {
 
 type TypeParameterInstantiation = {
   type: "TypeParameterInstantiation";
-  params: Array<GenericTypeAnnotation | VoidTypeAnnotation>; // probably more types are valid as well
+  params: Array<TypeTypeAnnotation | VoidTypeAnnotation>; // probably more types are valid as well
 }
 
 type Literal = NullLiteral | StringLiteral | BooleanLiteral | NumericLiteral;
