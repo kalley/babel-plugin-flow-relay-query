@@ -29,7 +29,9 @@ const createBabelOptions = plugin => ({
 });
 const customBabelOptions = options => createBabelOptions(createFlowRelayQueryPlugin(createSchema(schema.data), options));
 const babelOptions = customBabelOptions({});
-const itBabelOptions = createBabelOptions(pluginDef(schema.data));
+const itBabelOptions = createBabelOptions(pluginDef(schema.data, {
+  suppressWarnings: true
+}));
 
 function test(folder, options, expectedFile) {
   const optionsFile = path.resolve(folder, "options.js");
