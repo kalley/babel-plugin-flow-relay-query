@@ -41,7 +41,7 @@ export default Relay.createContainer(Article, {
   },
   fragments: {
     article: () => function () {
-      throw new Error("GraphQL validation error ``Argument \"category\" has invalid value 1.\nExpected type \"String\", found 1. Argument \"first\" has invalid value \"1\".\nExpected type \"Int\", found \"1\".`` in file `/Users/kalley/src/babel-plugin-flow-relay-query/test/fixture/fragment/bad_variable_types/source.js`. Try updating your GraphQL schema if an argument/field/type was recently added.");
+      throw new Error("GraphQL validation error ``Argument \"category\" has invalid value 1.\nExpected type \"String\", found 1. Argument \"first\" has invalid value \"1\".\nExpected type \"Int\", found \"1\".`` in file `{PROJECT_ROOT}/test/fixture/fragment/bad_variable_types/source.js`. Try updating your GraphQL schema if an argument/field/type was recently added.");
     }()
   }
 });
