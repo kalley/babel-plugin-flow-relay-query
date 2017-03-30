@@ -65,7 +65,7 @@ function convertGraphqlTypeToFlowType(
     return {
       type: "object",
       nullable,
-      properties: convertGraphqlObjectType(graphqlType, objectTypeCache)
+      fields: convertGraphqlObjectType(graphqlType, objectTypeCache)
     };
   }
 
@@ -106,12 +106,12 @@ function compareFlowTypes(a: FlowType, b: FlowType, path: Array<string> = []): A
   // help flow, cant handle an &&
   let aProps = null;
   if (a.type === "object") {
-    aProps = a.properties;
+    aProps = a.fields;
   }
 
   let bProps = null;
   if (b.type === "object") {
-    bProps = b.properties;
+    bProps = b.fields;
   }
 
   if (aProps && bProps) {
@@ -228,7 +228,7 @@ function flowTypeToGraphQLString(flowType: FlowType, level: number = 1): string 
   if (flowType.type === "object") {
     const indentation = "  ".repeat(level);
 
-    const props = flowType.properties;
+    const props = flowType.fields;
     const strings = Object.keys(props).reduce((parts, key) => {
       const value = props[key];
       parts.push(`${indentation}${key}${args}${flowTypeToGraphQLString(value, level + 1)}`);

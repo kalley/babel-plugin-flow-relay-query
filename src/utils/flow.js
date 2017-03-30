@@ -93,7 +93,7 @@ export function convertTypeAnnotationToFlowType(
       fieldName,
       type: "object",
       nullable,
-      properties: convertFlowObjectTypeAnnotation(value, flowTypes, fieldName, variables)
+      fields: convertFlowObjectTypeAnnotation(value, flowTypes, fieldName, variables)
     };
   }
 
